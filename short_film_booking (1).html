@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Short Film Booking</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    .timing {
+      margin-bottom: 20px;
+    }
+    .timing button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: 1px solid #4caf50;
+      background-color: white;
+      color: #4caf50;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .timing button.active {
+      background-color: #4caf50;
+      color: white;
+    }
+    .screen {
+      margin: 30px auto;
+      padding: 10px;
+      background: #cceeff;
+      width: 60%;
+      border-radius: 10px;
+    }
+    .layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .row {
+      margin: 5px 0;
+      display: flex;
+      justify-content: center;
+      flex-direction: row;
+    }
+    .seat {
+      width: 30px;
+      height: 30px;
+      margin: 2px;
+      border: 2px solid green;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+    .seat.selected {
+      background-color: green;
+      color: white;
+    }
+    .seat.sold {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .legend {
+      margin-top: 20px;
+    }
+    .legend span {
+      margin: 0 10px;
+    }
+    .book-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Short Film Seat Booking</h1>
+  <div class="timing">
+    <button onclick="selectTime(this)" class="active">07:00 PM</button>
+  </div>
+  <div class="screen">All eyes this way please!</div>
+  <div class="layout" id="seating-area"></div>
+  <div class="legend">
+    <span style="border:2px solid green; padding:5px;">Available</span>
+    <span style="background:green; color:white; padding:5px;">Selected</span>
+    <span style="background:#ccc; padding:5px;">Sold</span>
+  </div>
+  <button class="book-button" onclick="bookSeats()">Book Selected Seats</button>
+
+  <script>
+    const seatingArea = document.getElementById('seating-area');
+    const soldSeats = [];
+
+    const rows = [
+      { id: 'A', count: 21 },
+      ...'BCDEFGHIJKL'.split('').map(id => ({ id, count: 20 }))
+    ];
+
+    rows.forEach(row => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'row';
+
+      for (let i = 1; i <= row.count; i++) {
+        const seat = document.createElement('div');
+        seat.className = 'seat';
+        seat.dataset.seat = `${row.id}${row.count - i + 1}`;
+        seat.innerText = `${row.id}${row.count - i + 1}`;
+        seat.onclick = () => toggleSeat(seat);
+
+        if (row.count === 20 && i === 11) {
+          const spacer = document.createElement('div');
+          spacer.style.width = '40px';
+          rowEl.appendChild(spacer);
+        }
+
+        rowEl.appendChild(seat);
+      }
+      seatingArea.appendChild(rowEl);
+    });
+
+    function toggleSeat(seat) {
+      if (seat.classList.contains('sold')) return;
+      seat.classList.toggle('selected');
+    }
+
+    function selectTime(button) {
+      document.querySelectorAll('.timing button').forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+    }
+
+    function bookSeats() {
+      const selected = Array.from(document.querySelectorAll('.seat.selected'));
+      const seatNumbers = selected.map(seat => seat.dataset.seat);
+      const showTime = document.querySelector('.timing button.active')?.textContent;
+      if (!showTime || seatNumbers.length === 0) {
+        alert("Please select show time and seats.");
+        return;
+      }
+
+      alert(`Booked for ${showTime}:
+Seats: ${seatNumbers.join(', ')}`);
+      selected.forEach(seat => {
+        seat.classList.remove('selected');
+        seat.classList.add('sold');
+      });
+    }
+  </script>
+</body>
+</html>
